@@ -28,14 +28,21 @@
         
         // No InitialValue.
         if(arguments.length < 3){
-            resultSoFar = array[startingIndex];    
-            startingIndex++;      
+            
             // If array has one element, just return it.
             if(Object.keys(array).length === 1){
-                var singleIndex = Object.keys(array)[0];
-                var singleElement = array[singleIndex];
-                return singleElement;
+                var onlyIndex = Object.keys(array)[0];
+                var onlyElement = array[onlyIndex];
+                return onlyElement;
             }
+            
+            while(startingIndex in array === false) {
+                startingIndex++;
+            }
+            
+            resultSoFar = array[startingIndex]; 
+            startingIndex++;
+            
         } else {
             // InitialValue
             if(Object.keys(array).length === 0) {
@@ -44,7 +51,9 @@
         }
         
         for(var i=startingIndex; i<array.length; i++){
-            resultSoFar = callback(resultSoFar, array[i], i);    
+            if( i in array){
+                resultSoFar = callback(resultSoFar, array[i], i);        
+            }
         }
         return resultSoFar;
     }
@@ -122,7 +131,14 @@
             
             eq(reducedValue, 6);
         },
-        'It should exclude holes.':function(){
+        'If initialValue, it should exclude holes.':function(){
+            var reducedValue = reduce([, 1, 2, 3], function(previousValue, currentValue){
+                return previousValue + currentValue;
+            }, 0);
+            
+            eq(reducedValue, 6);
+        },
+        'If no initialValue, it should exclude holes, too.':function(){
             var reducedValue = reduce([, 1, 2, 3], function(previousValue, currentValue){
                 return previousValue + currentValue;
             });
